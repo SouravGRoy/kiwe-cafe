@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { getGlobalSettings } from "@/lib/billing-utils";
 
 interface TableSelectorProps {
   onTableSelected: (tableNumber: number) => void;
@@ -31,6 +32,7 @@ export function TableSelector({
   const [selectedTable, setSelectedTable] = useState<string>("");
   const [isOpen, setIsOpen] = useState(!currentTable);
   const { toast } = useToast();
+  const [numberOfTables, setNumberOfTables] = useState(15);
 
   useEffect(() => {
     if (currentTable) {
@@ -38,6 +40,20 @@ export function TableSelector({
       setIsOpen(false);
     }
   }, [currentTable]);
+
+  useEffect(() => {
+    loadTableCount();
+  }, []);
+
+  const loadTableCount = async () => {
+    try {
+      const settings = await getGlobalSettings();
+      setNumberOfTables(settings.number_of_tables || 15);
+    } catch (error) {
+      console.error("Error loading table count:", error);
+      setNumberOfTables(15); // fallback
+    }
+  };
 
   const handleTableSelect = () => {
     if (!selectedTable) {
@@ -94,11 +110,13 @@ export function TableSelector({
                 <SelectValue placeholder="Choose table number" />
               </SelectTrigger>
               <SelectContent>
-                {Array.from({ length: 15 }, (_, i) => i + 1).map((tableNum) => (
-                  <SelectItem key={tableNum} value={tableNum.toString()}>
-                    Table {tableNum}
-                  </SelectItem>
-                ))}
+                {Array.from({ length: numberOfTables }, (_, i) => i + 1).map(
+                  (tableNum) => (
+                    <SelectItem key={tableNum} value={tableNum.toString()}>
+                      Table {tableNum}
+                    </SelectItem>
+                  )
+                )}
               </SelectContent>
             </Select>
             <Button

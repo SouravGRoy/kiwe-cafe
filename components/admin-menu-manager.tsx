@@ -23,6 +23,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { getGlobalSettings } from "@/lib/billing-utils";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, X, AlertTriangle } from "lucide-react";
+import { Plus, Edit, Trash2, X, AlertTriangle, Percent } from "lucide-react";
 
 type Category = {
   id: string;
@@ -57,6 +58,8 @@ type Category = {
 type MenuItemWithCategory = MenuItem & {
   category_id: string | null;
   food_type: string;
+  gst_rate: number;
+  is_tax_included: boolean;
   categories?: Category;
 };
 
@@ -75,6 +78,7 @@ export function AdminMenuManager() {
     isOpen: false,
     item: null,
   });
+  const [globalSettings, setGlobalSettings] = useState<Record<string, any>>({});
   const { toast } = useToast();
 
   // Form states
@@ -86,6 +90,8 @@ export function AdminMenuManager() {
     category_id: "",
     food_type: "veg",
     available: true,
+    gst_rate: "",
+    is_tax_included: false,
   });
   const [itemAddOns, setItemAddOns] = useState<
     { name: string; price: string }[]
@@ -95,7 +101,13 @@ export function AdminMenuManager() {
     loadMenuItems();
     loadCategories();
     loadAddOns();
+    loadGlobalSettings();
   }, []);
+
+  const loadGlobalSettings = async () => {
+    const settings = await getGlobalSettings();
+    setGlobalSettings(settings);
+  };
 
   const loadMenuItems = async () => {
     const { data, error } = await supabase
@@ -149,6 +161,8 @@ export function AdminMenuManager() {
       category_id: "",
       food_type: "veg",
       available: true,
+      gst_rate: globalSettings.default_gst_rate?.toString() || "5",
+      is_tax_included: false,
     });
     setItemAddOns([]);
     setEditingItem(null);
@@ -165,6 +179,11 @@ export function AdminMenuManager() {
         category_id: item.category_id || "",
         food_type: item.food_type || "veg",
         available: item.available,
+        gst_rate:
+          item.gst_rate?.toString() ||
+          globalSettings.default_gst_rate?.toString() ||
+          "5",
+        is_tax_included: item.is_tax_included || false,
       });
 
       // Load existing add-ons for this item
@@ -220,6 +239,11 @@ export function AdminMenuManager() {
         category_id: formData.category_id,
         food_type: formData.food_type,
         available: formData.available,
+        gst_rate:
+          Number.parseFloat(formData.gst_rate) ||
+          globalSettings.default_gst_rate ||
+          5,
+        is_tax_included: formData.is_tax_included,
       };
 
       let menuItemId: string;
@@ -406,7 +430,7 @@ export function AdminMenuManager() {
               <DialogDescription>
                 {editingItem
                   ? "Update the menu item details."
-                  : "Create a new menu item with add-ons."}
+                  : "Create a new menu item with pricing and tax settings."}
               </DialogDescription>
             </DialogHeader>
 
@@ -479,6 +503,66 @@ export function AdminMenuManager() {
                   </Select>
                 </div>
               </div>
+
+              {/* GST Settings */}
+              <Card className="bg-blue-50 border-blue-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Percent className="h-4 w-4" />
+                    Tax Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="gst_rate">GST Rate (%)</Label>
+                      <Input
+                        id="gst_rate"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="28"
+                        value={formData.gst_rate}
+                        onChange={(e) =>
+                          setFormData({ ...formData, gst_rate: e.target.value })
+                        }
+                        placeholder={
+                          globalSettings.default_gst_rate?.toString() || "5"
+                        }
+                      />
+                      <p className="text-xs text-gray-600">
+                        Default: {globalSettings.default_gst_rate || 5}%
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Tax Included in Price</Label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Switch
+                          id="is_tax_included"
+                          checked={formData.is_tax_included}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              is_tax_included: checked,
+                            })
+                          }
+                        />
+                        <Label htmlFor="is_tax_included" className="text-sm">
+                          {formData.is_tax_included
+                            ? "Tax Included"
+                            : "Tax Extra"}
+                        </Label>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        {formData.is_tax_included
+                          ? "Price includes GST (MRP style)"
+                          : "GST will be added to price"}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
@@ -588,6 +672,9 @@ export function AdminMenuManager() {
                     <CardTitle className="text-lg">{item.name}</CardTitle>
                     <CardDescription className="text-green-600 font-semibold">
                       ₹{item.price.toFixed(2)}
+                      {item.is_tax_included && (
+                        <span className="text-xs ml-1">(incl. tax)</span>
+                      )}
                     </CardDescription>
                   </div>
                   <div className="flex flex-col items-end gap-2">
@@ -607,6 +694,18 @@ export function AdminMenuManager() {
                     <Badge variant="outline">{item.categories.name}</Badge>
                   </div>
                 )}
+
+                {/* Tax Information */}
+                <div className="mb-3 p-2 bg-gray-50 rounded text-xs">
+                  <div className="flex justify-between">
+                    <span>GST Rate:</span>
+                    <span>{item.gst_rate || 5}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tax Status:</span>
+                    <span>{item.is_tax_included ? "Included" : "Extra"}</span>
+                  </div>
+                </div>
 
                 {item.description && (
                   <p className="text-sm text-gray-600 mb-3">

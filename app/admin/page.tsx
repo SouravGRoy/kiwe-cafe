@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { SimpleAdminAuth } from "@/components/simple-admin-auth";
 import { AdminMenuManager } from "@/components/admin-menu-manager";
 import { AdminCategoryManager } from "@/components/admin-category-manager";
+import { AdminAnalytics } from "@/components/admin-analytics";
+import { AdminBillingSettings } from "@/components/admin-billing-settings";
 
 // Simple auth functions inline to avoid import issues
 function isAdminLoggedIn() {
@@ -239,6 +241,8 @@ export default function AdminPage() {
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="menu">Menu Items</TabsTrigger>
+            <TabsTrigger value="billing">Billing Settings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="space-y-6">
@@ -407,6 +411,14 @@ export default function AdminPage() {
 
           <TabsContent value="menu">
             <AdminMenuManager />
+          </TabsContent>
+
+          <TabsContent value="billing">
+            <AdminBillingSettings />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdminAnalytics />
           </TabsContent>
         </Tabs>
       </main>

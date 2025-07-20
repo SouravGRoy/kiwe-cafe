@@ -53,9 +53,17 @@ export function CategoryTabs({
   }
 
   return (
-    <div className="bg-white border-b border-gray-100 sticky top-16 z-30">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex overflow-x-auto scrollbar-hide py-4 gap-3">
+    <div className="bg-white border-b border-gray-100 sticky top-[120px] z-30">
+      <div className="max-w-6xl mx-auto">
+        <div
+          className="flex overflow-x-auto py-4 gap-3 px-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           {categories.map((category) => {
             const IconComponent = iconMap[category.icon] || Star;
             const isSelected = selectedCategory === category.id;

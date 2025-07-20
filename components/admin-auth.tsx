@@ -55,8 +55,8 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
         password
       );
 
-      if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
+      if (signUpError && (signUpError as Error).message) {
+        if ((signUpError as Error).message.includes("already registered")) {
           setDebugInfo("User already exists, trying to sign in...");
 
           // Try to sign in instead
@@ -66,15 +66,17 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
           );
 
           if (signInError) {
-            throw new Error(`Sign in failed: ${signInError.message}`);
+            throw new Error(
+              `Sign in failed: ${(signInError as Error).message}`
+            );
           }
 
-          if (signInData.user) {
+          if (signInData?.user) {
             // Check if user has admin role
             const { data: profile, error: profileError } = await supabase
               .from("profiles")
               .select("role")
-              .eq("id", signInData.user.id)
+              .eq("id", signInData?.user?.id)
               .single();
 
             if (profileError) {
@@ -82,8 +84,8 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
               const { error: insertError } = await supabase
                 .from("profiles")
                 .insert({
-                  id: signInData.user.id,
-                  email: signInData.user.email,
+                  id: signInData?.user?.id,
+                  email: signInData?.user?.email,
                   role: "admin",
                 });
 
@@ -97,7 +99,7 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
               const { error: updateError } = await supabase
                 .from("profiles")
                 .update({ role: "admin" })
-                .eq("id", signInData.user.id);
+                .eq("id", signInData?.user?.id);
 
               if (updateError) {
                 throw new Error(
@@ -115,13 +117,13 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
             setTimeout(onAuthSuccess, 1000);
           }
         } else {
-          throw new Error(`Sign up failed: ${signUpError.message}`);
+          throw new Error(`Sign up failed: ${(signUpError as Error).message}`);
         }
-      } else if (signUpData.user) {
+      } else if (signUpData?.user) {
         // New user created, make them admin
         const { error: profileError } = await supabase.from("profiles").upsert({
-          id: signUpData.user.id,
-          email: signUpData.user.email,
+          id: signUpData?.user?.id,
+          email: signUpData?.user?.email,
           role: "admin",
         });
 
@@ -163,7 +165,9 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
       );
 
       if (signInError) {
-        if (signInError.message.includes("Invalid login credentials")) {
+        if (
+          (signInError as Error).message?.includes("Invalid login credentials")
+        ) {
           // Try to sign up
           setDebugInfo("User not found, creating new account...");
           const { data: signUpData, error: signUpError } = await signUp(
@@ -172,14 +176,16 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
           );
 
           if (signUpError) {
-            throw new Error(`Sign up failed: ${signUpError.message}`);
+            throw new Error(
+              `Sign up failed: ${(signUpError as Error).message}`
+            );
           }
 
-          if (signUpData.user) {
+          if (signUpData?.user) {
             // Make new user admin
             await supabase.from("profiles").upsert({
-              id: signUpData.user.id,
-              email: signUpData.user.email,
+              id: signUpData?.user?.id,
+              email: signUpData?.user?.email,
               role: "admin",
             });
 
@@ -192,9 +198,9 @@ export function AdminAuth({ onAuthSuccess }: AdminAuthProps) {
             setTimeout(onAuthSuccess, 1000);
           }
         } else {
-          throw new Error(`Sign in failed: ${signInError.message}`);
+          throw new Error(`Sign in failed: ${(signInError as Error).message}`);
         }
-      } else if (signInData.user) {
+      } else if (signInData?.user) {
         setDebugInfo("Sign in successful!");
         toast({
           title: "Success",

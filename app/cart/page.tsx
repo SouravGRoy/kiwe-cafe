@@ -89,107 +89,53 @@ export default function CartPage() {
         ready_to_pay: readyToPay,
       });
 
-      // Create order without customer_phone first, then update if column exists
+      // Create order with simple total (detailed billing will be in pay bill)
       const orderData: any = {
         total: state.total,
         customer_name: customerName || null,
         table_number: tableNumber!,
         status: "pending",
         ready_to_pay: readyToPay,
+        customer_phone: verifiedPhone,
       };
 
-      // Try to include customer_phone if the column exists
-      try {
-        const { data: order, error: orderError } = await supabase
-          .from("orders")
-          .insert({
-            ...orderData,
-            customer_phone: verifiedPhone,
-          })
-          .select()
-          .single();
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert(orderData)
+        .select()
+        .single();
 
-        if (orderError) throw orderError;
+      if (orderError) throw orderError;
 
-        // Create order items
-        const orderItems = state.items.map((item) => ({
-          order_id: order.id,
-          menu_item_id: item.menuItem.id,
-          quantity: item.quantity,
-          item_price: item.menuItem.price,
-          selected_add_ons: item.selectedAddOns,
-          notes: item.notes || null,
-        }));
+      // Create order items
+      const orderItems = state.items.map((item) => ({
+        order_id: order.id,
+        menu_item_id: item.menuItem.id,
+        quantity: item.quantity,
+        item_price: item.menuItem.price,
+        selected_add_ons: item.selectedAddOns,
+        notes: item.notes || null,
+      }));
 
-        const { error: itemsError } = await supabase
-          .from("order_items")
-          .insert(orderItems);
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
 
-        if (itemsError) throw itemsError;
+      if (itemsError) throw itemsError;
 
-        // Clear cart
-        dispatch({ type: "CLEAR_CART" });
+      // Clear cart
+      dispatch({ type: "CLEAR_CART" });
 
-        toast({
-          title: readyToPay ? "Ready to pay!" : "Order placed successfully!",
-          description: readyToPay
-            ? `Order #${order.id.slice(
-                -8
-              )} is ready for payment at Table ${tableNumber}.`
-            : `Your order #${order.id.slice(-8)} has been sent to the kitchen.`,
-        });
+      toast({
+        title: readyToPay ? "Ready to pay!" : "Order placed successfully!",
+        description: readyToPay
+          ? `Order #${order.id.slice(
+              -8
+            )} is ready for payment at Table ${tableNumber}.`
+          : `Your order #${order.id.slice(-8)} has been sent to the kitchen.`,
+      });
 
-        router.push("/");
-      } catch (phoneColumnError: any) {
-        // If customer_phone column doesn't exist, try without it
-        if (phoneColumnError.message?.includes("customer_phone")) {
-          console.log(
-            "customer_phone column not found, creating order without it..."
-          );
-
-          const { data: order, error: orderError } = await supabase
-            .from("orders")
-            .insert(orderData)
-            .select()
-            .single();
-
-          if (orderError) throw orderError;
-
-          // Create order items
-          const orderItems = state.items.map((item) => ({
-            order_id: order.id,
-            menu_item_id: item.menuItem.id,
-            quantity: item.quantity,
-            item_price: item.menuItem.price,
-            selected_add_ons: item.selectedAddOns,
-            notes: item.notes || null,
-          }));
-
-          const { error: itemsError } = await supabase
-            .from("order_items")
-            .insert(orderItems);
-
-          if (itemsError) throw itemsError;
-
-          // Clear cart
-          dispatch({ type: "CLEAR_CART" });
-
-          toast({
-            title: readyToPay ? "Ready to pay!" : "Order placed successfully!",
-            description: readyToPay
-              ? `Order #${order.id.slice(
-                  -8
-                )} is ready for payment at Table ${tableNumber}.`
-              : `Your order #${order.id.slice(
-                  -8
-                )} has been sent to the kitchen.`,
-          });
-
-          router.push("/");
-        } else {
-          throw phoneColumnError;
-        }
-      }
+      router.push("/");
     } catch (error) {
       console.error("Error placing order:", error);
       toast({

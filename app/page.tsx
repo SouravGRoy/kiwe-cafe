@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-
 import { supabase } from "@/lib/supabase";
 import { CategorySection } from "@/components/category-section";
 import { CategoryTabs } from "@/components/category-tabs";
@@ -263,15 +261,7 @@ export default function HomePage() {
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">
-                      <Image
-                        src="/kiweM.png"
-                        alt="DYU Art Cafe"
-                        width={80}
-                        height={80}
-                        className="rounded-lg"
-                      />
-                    </span>
+                    <span className="text-white font-bold text-sm">D</span>
                   </div>
                   <div>
                     <h1 className="text-lg font-bold text-gray-900">
@@ -379,7 +369,7 @@ export default function HomePage() {
                   </Button>
                 </Link>
 
-                <Link href="/cart">
+                <Link href="/pay-bill">
                   <Button
                     variant="ghost"
                     className="flex flex-col items-center gap-1 text-gray-600"
