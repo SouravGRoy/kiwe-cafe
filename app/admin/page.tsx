@@ -206,17 +206,17 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Admin Dashboard
               </h1>
               <p className="text-sm text-gray-600">
                 Welcome, {adminInfo?.email}
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
               {readyToPayOrders.length > 0 && (
                 <Badge variant="destructive" className="flex items-center">
                   💰 {readyToPayOrders.length} Ready to Pay
@@ -227,7 +227,12 @@ export default function AdminPage() {
                   🔔 {pendingOrders.length} New Orders
                 </Badge>
               )}
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="ml-auto sm:ml-0"
+              >
                 🚪 Logout
               </Button>
             </div>
@@ -235,14 +240,24 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="menu">Menu Items</TabsTrigger>
-            <TabsTrigger value="billing">Billing Settings</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+      <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <Tabs defaultValue="orders" className="space-y-4 sm:space-y-6">
+          <TabsList className="w-full flex overflow-x-auto gap-1 sm:gap-2 p-1 bg-transparent">
+            <TabsTrigger value="orders" className="flex-1 sm:flex-none">
+              Orders
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="flex-1 sm:flex-none">
+              Categories
+            </TabsTrigger>
+            <TabsTrigger value="menu" className="flex-1 sm:flex-none">
+              Menu
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex-1 sm:flex-none">
+              Billing
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 sm:flex-none">
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="space-y-6">
@@ -252,7 +267,7 @@ export default function AdminPage() {
                 <h2 className="text-xl font-semibold mb-4 flex items-center">
                   💰 Ready to Pay ({readyToPayOrders.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {readyToPayOrders.map((order) => {
                     const items = orderItems.filter(
                       (item) => item.order_id === order.id
@@ -262,39 +277,39 @@ export default function AdminPage() {
                         key={order.id}
                         className="border-green-200 bg-green-50"
                       >
-                        <CardHeader>
-                          <CardTitle className="flex justify-between items-center">
+                        <CardHeader className="p-4 sm:p-6">
+                          <CardTitle className="flex flex-wrap gap-2 justify-between items-center text-base sm:text-lg">
                             <span>#{order.id.slice(-8)}</span>
                             <Badge variant="outline" className="bg-green-100">
                               Ready to Pay
                             </Badge>
                           </CardTitle>
-                          <CardDescription>
+                          <CardDescription className="mt-1">
                             {order.customer_name &&
                               `Customer: ${order.customer_name}`}
                             {order.table_number &&
                               ` • Table ${order.table_number}`}
                           </CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-4 sm:p-6">
                           <div className="space-y-2 mb-4">
                             {items.map((item) => (
                               <div
                                 key={item.id}
-                                className="flex justify-between text-sm"
+                                className="flex flex-wrap justify-between text-sm gap-1"
                               >
-                                <span>
+                                <span className="min-w-[60%]">
                                   {item.quantity}x{" "}
                                   {item.menu_items?.name || "Unknown Item"}
                                 </span>
-                                <span>
+                                <span className="font-medium">
                                   ₹
                                   {(item.item_price * item.quantity).toFixed(2)}
                                 </span>
                               </div>
                             ))}
                           </div>
-                          <div className="flex justify-between font-semibold mb-4">
+                          <div className="flex justify-between font-semibold mb-4 text-base sm:text-lg">
                             <span>Total:</span>
                             <span>₹{order.total.toFixed(2)}</span>
                           </div>

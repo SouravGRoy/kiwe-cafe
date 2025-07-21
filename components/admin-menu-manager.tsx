@@ -43,7 +43,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, X, AlertTriangle, Percent } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  AlertTriangle,
+  Percent,
+  ImageIcon,
+} from "lucide-react";
+import Image from "next/image";
 
 type Category = {
   id: string;
@@ -71,6 +80,7 @@ export function AdminMenuManager() {
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     item: MenuItemWithCategory | null;
@@ -78,7 +88,18 @@ export function AdminMenuManager() {
     isOpen: false,
     item: null,
   });
+
+  // Add mobile view detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   const [globalSettings, setGlobalSettings] = useState<Record<string, any>>({});
+  const [imagePreview, setImagePreview] = useState<string>("");
   const { toast } = useToast();
 
   // Form states
@@ -103,6 +124,11 @@ export function AdminMenuManager() {
     loadAddOns();
     loadGlobalSettings();
   }, []);
+
+  // Update image preview when image_url changes
+  useEffect(() => {
+    setImagePreview(formData.image_url);
+  }, [formData.image_url]);
 
   const loadGlobalSettings = async () => {
     const settings = await getGlobalSettings();
@@ -166,6 +192,7 @@ export function AdminMenuManager() {
     });
     setItemAddOns([]);
     setEditingItem(null);
+    setImagePreview("");
   };
 
   const openDialog = (item?: MenuItemWithCategory) => {
@@ -504,6 +531,50 @@ export function AdminMenuManager() {
                 </div>
               </div>
 
+              {/* Image Section */}
+              <Card className="bg-blue-50 border-blue-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Item Image
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="image_url">Image URL</Label>
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) =>
+                        setFormData({ ...formData, image_url: e.target.value })
+                      }
+                      placeholder="https://example.com/food-image.jpg"
+                    />
+                    <p className="text-xs text-gray-600">
+                      Add a high-quality image URL for better customer
+                      experience. Recommended size: 400x400px
+                    </p>
+                  </div>
+
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="space-y-2">
+                      <Label>Preview</Label>
+                      <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 border">
+                        <Image
+                          src={imagePreview || "/placeholder.svg"}
+                          alt="Preview"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                          onError={() => setImagePreview("")}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* GST Settings */}
               <Card className="bg-blue-50 border-blue-200">
                 <CardHeader className="pb-3">
@@ -574,18 +645,6 @@ export function AdminMenuManager() {
                   }
                   placeholder="Describe the menu item..."
                   rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image_url: e.target.value })
-                  }
-                  placeholder="https://example.com/image.jpg"
                 />
               </div>
 
@@ -668,7 +727,7 @@ export function AdminMenuManager() {
             <Card key={item.id} className={!item.available ? "opacity-75" : ""}>
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-lg">{item.name}</CardTitle>
                     <CardDescription className="text-green-600 font-semibold">
                       ₹{item.price.toFixed(2)}
@@ -689,6 +748,21 @@ export function AdminMenuManager() {
               </CardHeader>
 
               <CardContent>
+                {/* Image Preview */}
+                {item.image_url && (
+                  <div className="mb-3">
+                    <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-100">
+                      <Image
+                        src={item.image_url || "/placeholder.svg"}
+                        alt={item.name}
+                        width={200}
+                        height={128}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {item.categories && (
                   <div className="mb-2">
                     <Badge variant="outline">{item.categories.name}</Badge>

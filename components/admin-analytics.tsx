@@ -256,47 +256,57 @@ export function AdminAnalytics() {
       </div>
 
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="daily">Daily Sales</TabsTrigger>
-          <TabsTrigger value="items">Popular Items</TabsTrigger>
-          <TabsTrigger value="tables">Table Performance</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+        <TabsList className="w-full overflow-x-auto flex whitespace-nowrap gap-2 p-1">
+          <TabsTrigger value="daily" className="flex-1 sm:flex-none">
+            Daily Sales
+          </TabsTrigger>
+          <TabsTrigger value="items" className="flex-1 sm:flex-none">
+            Popular Items
+          </TabsTrigger>
+          <TabsTrigger value="tables" className="flex-1 sm:flex-none">
+            Table Performance
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="flex-1 sm:flex-none">
+            Insights
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Sales Performance</CardTitle>
-              <CardDescription>
+          <Card className="overflow-hidden">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-lg sm:text-xl">
+                Daily Sales Performance
+              </CardTitle>
+              <CardDescription className="text-sm">
                 Revenue and order trends over time
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-0">
+              <div className="space-y-2 sm:space-y-4 divide-y">
                 {dailySales.map((day, index) => (
                   <div
                     key={day.sale_date}
-                    className="flex items-center justify-between p-4 border rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 hover:bg-gray-50"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-blue-600" />
+                    <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-0">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       </div>
                       <div>
-                        <div className="font-medium">
+                        <div className="font-medium text-sm sm:text-base">
                           {new Date(day.sale_date).toLocaleDateString("en-US", {
                             weekday: "long",
                             month: "short",
                             day: "numeric",
                           })}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-xs sm:text-sm text-gray-600">
                           {day.total_orders} orders • {day.tables_served} tables
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-lg">
+                    <div className="flex justify-between sm:block text-right ml-11 sm:ml-0">
+                      <div className="text-base sm:text-lg font-bold">
                         ₹{day.total_revenue.toFixed(2)}
                       </div>
                       <div className="text-sm text-gray-600">
@@ -414,26 +424,30 @@ export function AdminAnalytics() {
         </TabsContent>
 
         <TabsContent value="insights" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Payment Methods */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+            <Card className="overflow-hidden">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
                   Payment Methods
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-3">
                   {paymentMethodStats.map((stat) => (
                     <div
                       key={stat.method}
-                      className="flex items-center justify-between"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                     >
-                      <span className="font-medium">{stat.method}</span>
+                      <span className="font-medium text-sm sm:text-base">
+                        {stat.method}
+                      </span>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{stat.count} orders</Badge>
-                        <span className="text-sm text-gray-600">
+                        <Badge variant="outline" className="text-xs sm:text-sm">
+                          {stat.count} orders
+                        </Badge>
+                        <span className="text-xs sm:text-sm text-gray-600">
                           {stat.percentage}%
                         </span>
                       </div>
@@ -444,27 +458,31 @@ export function AdminAnalytics() {
             </Card>
 
             {/* Busiest Hours */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
+            <Card className="overflow-hidden">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                   Busiest Hours
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-3">
                   {busiestHours.map((hour, index) => (
                     <div
                       key={hour.hour}
-                      className="flex items-center justify-between"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                     >
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-orange-500" />
-                        <span className="font-medium">{hour.hour}</span>
+                        <span className="font-medium text-sm sm:text-base">
+                          {hour.hour}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{hour.count} orders</Badge>
-                        <span className="text-sm text-gray-600">
+                      <div className="flex items-center gap-2 ml-6 sm:ml-0">
+                        <Badge variant="outline" className="text-xs sm:text-sm">
+                          {hour.count} orders
+                        </Badge>
+                        <span className="text-xs sm:text-sm text-gray-600">
                           {hour.percentage}%
                         </span>
                       </div>
