@@ -18,6 +18,7 @@ import {
 import { useCart } from "@/contexts/cart-context";
 import { Search, Home, Menu, FileText, CreditCard } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Category = {
   id: string;
@@ -260,8 +261,14 @@ export default function HomePage() {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">D</span>
+                  <div className="w-8 h-8 border-2 border-slate-500 rounded-lg flex items-center justify-center">
+                    <Image
+                      src="/kiweM.png"
+                      alt="DYU Art Cafe"
+                      width={80}
+                      height={80}
+                      className="rounded-lg"
+                    />
                   </div>
                   <div>
                     <h1 className="text-lg font-bold text-gray-900">

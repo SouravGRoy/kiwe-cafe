@@ -240,31 +240,46 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <Tabs defaultValue="orders" className="space-y-4 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-4">
+        <Tabs defaultValue="orders" className="space-y-3 sm:space-y-4">
           <TabsList className="w-full flex overflow-x-auto gap-1 sm:gap-2 p-1 bg-transparent">
-            <TabsTrigger value="orders" className="flex-1 sm:flex-none">
+            <TabsTrigger
+              value="orders"
+              className="flex-shrink-0 whitespace-nowrap px-3 py-2 text-xs sm:text-sm"
+            >
               Orders
             </TabsTrigger>
-            <TabsTrigger value="categories" className="flex-1 sm:flex-none">
+            <TabsTrigger
+              value="categories"
+              className="flex-shrink-0 whitespace-nowrap px-3 py-2 text-xs sm:text-sm"
+            >
               Categories
             </TabsTrigger>
-            <TabsTrigger value="menu" className="flex-1 sm:flex-none">
+            <TabsTrigger
+              value="menu"
+              className="flex-shrink-0 whitespace-nowrap px-3 py-2 text-xs sm:text-sm"
+            >
               Menu
             </TabsTrigger>
-            <TabsTrigger value="billing" className="flex-1 sm:flex-none">
+            <TabsTrigger
+              value="billing"
+              className="flex-shrink-0 whitespace-nowrap px-3 py-2 text-xs sm:text-sm"
+            >
               Billing
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex-1 sm:flex-none">
+            <TabsTrigger
+              value="analytics"
+              className="flex-shrink-0 whitespace-nowrap px-3 py-2 text-xs sm:text-sm"
+            >
               Analytics
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="orders" className="space-y-6">
+          <TabsContent value="orders" className="space-y-4">
             {/* Ready to Pay Orders */}
             {readyToPayOrders.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <h2 className="text-xl font-semibold mb-3 flex items-center">
                   💰 Ready to Pay ({readyToPayOrders.length})
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -332,7 +347,7 @@ export default function AdminPage() {
 
             {/* Pending Orders */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <h2 className="text-xl font-semibold mb-3 flex items-center">
                 ⏰ Pending Orders ({pendingOrders.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -413,7 +428,7 @@ export default function AdminPage() {
               </div>
 
               {pendingOrders.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-6 text-gray-500">
                   No pending orders at the moment.
                 </div>
               )}

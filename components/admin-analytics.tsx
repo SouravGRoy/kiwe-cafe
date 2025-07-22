@@ -256,17 +256,29 @@ export function AdminAnalytics() {
       </div>
 
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="w-full overflow-x-auto flex whitespace-nowrap gap-2 p-1">
-          <TabsTrigger value="daily" className="flex-1 sm:flex-none">
+        <TabsList className="w-full overflow-x-auto flex gap-1 p-1">
+          <TabsTrigger
+            value="daily"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
             Daily Sales
           </TabsTrigger>
-          <TabsTrigger value="items" className="flex-1 sm:flex-none">
+          <TabsTrigger
+            value="items"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
             Popular Items
           </TabsTrigger>
-          <TabsTrigger value="tables" className="flex-1 sm:flex-none">
-            Table Performance
+          <TabsTrigger
+            value="tables"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
+            Table Metrix
           </TabsTrigger>
-          <TabsTrigger value="insights" className="flex-1 sm:flex-none">
+          <TabsTrigger
+            value="insights"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
             Insights
           </TabsTrigger>
         </TabsList>
