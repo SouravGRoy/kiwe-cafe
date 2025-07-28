@@ -99,11 +99,27 @@ export default function PayBillPage() {
 
   const loadOrders = async (table: number) => {
     try {
-      // Load orders for this table that are not completed
+      // Get current session ID for secure filtering
+      let sessionId = localStorage.getItem("current_session_id");
+      const verifiedPhone = localStorage.getItem("verified_phone");
+
+      // If no session ID but user is verified, create one
+      if (!sessionId && verifiedPhone && table) {
+        sessionId = `${verifiedPhone}_table_${table}`;
+        localStorage.setItem("current_session_id", sessionId);
+      }
+
+      if (!sessionId) {
+        console.warn("No session ID found, user needs to authenticate");
+        setOrders([]);
+        return;
+      }
+
+      // Load orders for this session (phone + table combination)
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .select("*")
-        .eq("table_number", table)
+        .eq("session_id", sessionId)
         .in("status", ["pending", "preparing", "ready"])
         .order("created_at", { ascending: false });
 

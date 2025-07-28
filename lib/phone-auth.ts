@@ -3,6 +3,9 @@ function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
+// Import session management functions at the top
+import { createSessionId, setCurrentSession } from './table-storage'
+
 // Store OTP in localStorage temporarily (in production, use a proper backend)
 export function storeOTP(phone: string, otp: string) {
   const otpData = {
@@ -70,6 +73,15 @@ export function verifyOTP(phone: string, enteredOTP: string): { success: boolean
       // Store verified phone session
       localStorage.setItem("verified_phone", phone)
 
+      // Get current table from localStorage
+      const currentTable = localStorage.getItem("selected_table")
+      if (currentTable) {
+        // Create and set session ID combining phone and table
+        const tableNumber = parseInt(currentTable, 10)
+        const sessionId = createSessionId(phone, tableNumber)
+        localStorage.setItem("current_session_id", sessionId)
+      }
+
       return { success: true }
     } else {
       return { success: false, error: "Invalid OTP" }
@@ -87,6 +99,8 @@ export function isPhoneVerified(): string | null {
 // Clear phone verification
 export function clearPhoneVerification() {
   localStorage.removeItem("verified_phone")
+  localStorage.removeItem("current_session_id")
+  
   // Clear all OTP data
   Object.keys(localStorage).forEach((key) => {
     if (key.startsWith("otp_")) {

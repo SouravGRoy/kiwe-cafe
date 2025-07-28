@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { getSelectedTable } from "@/lib/table-storage";
 import { isPhoneVerified } from "@/lib/phone-auth";
 import { PhoneAuthModal } from "@/components/phone-auth-modal";
+import { CouponInput } from "@/components/coupon-input";
 import { Minus, Plus, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,14 @@ export default function CartPage() {
   const [tableNumber, setTableNumber] = useState<number | null>(null);
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const [showPhoneAuth, setShowPhoneAuth] = useState(false);
+
+  // Coupon state
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    couponId: string;
+    couponCode: string;
+    discountAmount: number;
+    finalTotal: number;
+  } | null>(null);
 
   useEffect(() => {
     const currentTable = getSelectedTable();
@@ -90,13 +99,31 @@ export default function CartPage() {
       });
 
       // Create order with simple total (detailed billing will be in pay bill)
+      let sessionId = localStorage.getItem("current_session_id");
+
+      // If no session ID exists, create one
+      if (!sessionId && verifiedPhone && tableNumber) {
+        sessionId = `${verifiedPhone}_table_${tableNumber}`;
+        localStorage.setItem("current_session_id", sessionId);
+      }
+
+      // Calculate final total with coupon
+      const finalTotal = appliedCoupon ? appliedCoupon.finalTotal : state.total;
+      const originalTotal = state.total;
+      const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+
       const orderData: any = {
-        total: state.total,
+        total: finalTotal,
+        original_total: originalTotal,
+        discount_amount: discountAmount,
+        coupon_id: appliedCoupon?.couponId || null,
+        coupon_code: appliedCoupon?.couponCode || null,
         customer_name: customerName || null,
         table_number: tableNumber!,
         status: "pending",
         ready_to_pay: readyToPay,
         customer_phone: verifiedPhone,
+        session_id: sessionId, // Add session ID for user isolation
       };
 
       const { data: order, error: orderError } = await supabase
@@ -123,8 +150,28 @@ export default function CartPage() {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
+      // Apply coupon if one was used
+      if (appliedCoupon) {
+        try {
+          await fetch("/api/coupons/apply", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              couponId: appliedCoupon.couponId,
+              orderId: order.id,
+            }),
+          });
+        } catch (couponError) {
+          console.error("Error applying coupon:", couponError);
+          // Don't fail the entire order if coupon application fails
+        }
+      }
+
+      // Clear cart and coupon
       dispatch({ type: "CLEAR_CART" });
+      setAppliedCoupon(null);
 
       toast({
         title: readyToPay ? "Ready to pay!" : "Order placed successfully!",
@@ -151,6 +198,19 @@ export default function CartPage() {
   const handlePhoneVerified = (phone: string) => {
     setVerifiedPhone(phone);
     setShowPhoneAuth(false);
+  };
+
+  const handleCouponApplied = (couponData: {
+    couponId: string;
+    discountAmount: number;
+    finalTotal: number;
+    couponCode: string;
+  }) => {
+    setAppliedCoupon(couponData);
+  };
+
+  const handleCouponRemoved = () => {
+    setAppliedCoupon(null);
   };
 
   if (state.items.length === 0) {
@@ -328,9 +388,46 @@ export default function CartPage() {
 
                   <Separator />
 
-                  <div className="flex justify-between items-center text-lg font-semibold">
-                    <span>Total:</span>
-                    <span>₹{state.total.toFixed(2)}</span>
+                  {/* Coupon Input - Only show if phone is verified */}
+                  {verifiedPhone && (
+                    <>
+                      <CouponInput
+                        orderTotal={state.total}
+                        customerPhone={verifiedPhone}
+                        onCouponApplied={handleCouponApplied}
+                        onCouponRemoved={handleCouponRemoved}
+                        appliedCoupon={appliedCoupon}
+                      />
+                      <Separator />
+                    </>
+                  )}
+
+                  {/* Order Summary */}
+                  <div className="space-y-2">
+                    {appliedCoupon && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span>Subtotal:</span>
+                          <span>₹{state.total.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>Discount ({appliedCoupon.couponCode}):</span>
+                          <span>
+                            -₹{appliedCoupon.discountAmount.toFixed(2)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between items-center text-lg font-semibold">
+                      <span>Total:</span>
+                      <span>
+                        ₹
+                        {(appliedCoupon
+                          ? appliedCoupon.finalTotal
+                          : state.total
+                        ).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2">

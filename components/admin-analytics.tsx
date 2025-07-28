@@ -27,7 +27,10 @@ import {
   Award,
   MapPin,
   Clock,
+  Ticket,
 } from "lucide-react";
+import { AdminCustomerDashboard } from "./admin-customer-dashboard";
+import { AdminCouponDashboard } from "./admin-coupon-dashboard";
 
 type DailySales = {
   sale_date: string;
@@ -276,6 +279,18 @@ export function AdminAnalytics() {
             Table Metrix
           </TabsTrigger>
           <TabsTrigger
+            value="customers"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
+            Customers
+          </TabsTrigger>
+          <TabsTrigger
+            value="coupons"
+            className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
+          >
+            Coupons
+          </TabsTrigger>
+          <TabsTrigger
             value="insights"
             className="flex-shrink-0 px-2 py-1.5 text-xs sm:text-sm whitespace-nowrap min-w-fit"
           >
@@ -504,6 +519,14 @@ export function AdminAnalytics() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="customers" className="space-y-4">
+          <AdminCustomerDashboard />
+        </TabsContent>
+
+        <TabsContent value="coupons" className="space-y-4">
+          <AdminCouponDashboard />
         </TabsContent>
       </Tabs>
     </div>

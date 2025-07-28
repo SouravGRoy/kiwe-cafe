@@ -184,6 +184,9 @@ export default function HomePage() {
   };
 
   const handleCategorySelect = (categoryId: string) => {
+    // Update the selected category state
+    setSelectedCategory(categoryId);
+
     const element = document.getElementById(`category-${categoryId}`);
     if (element) {
       // Scroll to the category section with offset for sticky headers
