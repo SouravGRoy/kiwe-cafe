@@ -263,10 +263,10 @@ export default function CartPage() {
           </div>
         </header>
 
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-3 space-y-4">
               {state.items.map((item, index) => {
                 const addOnsTotal = item.selectedAddOns.reduce(
                   (sum, addOn) => sum + addOn.price,
@@ -354,7 +354,7 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Order Summary</CardTitle>
